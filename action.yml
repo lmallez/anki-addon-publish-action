@@ -1,0 +1,76 @@
+name: "📦 AnkiWeb Add-on Upload"
+description: "Updates an existing AnkiWeb add-on with an .ankiaddon package."
+branding:
+  icon: package
+  color: blue
+inputs:
+  file:
+    description: "Path to the .ankiaddon file"
+    required: true
+  anki-user:
+    description: "AnkiWeb username or email. Pass via a GitHub Actions secret."
+    required: true
+  anki-password:
+    description: "AnkiWeb password. Pass via a GitHub Actions secret."
+    required: true
+  id:
+    description: "Existing AnkiWeb add-on id to update"
+    required: true
+  name:
+    description: "Add-on display name"
+    required: true
+  support-page:
+    description: "Optional support page URL"
+    required: false
+    default: ""
+  tags:
+    description: "Optional comma-separated add-on tags"
+    required: false
+    default: ""
+  description:
+    description: "Optional inline description text"
+    required: false
+    default: ""
+  timeout-seconds:
+    description: "Request timeout in seconds"
+    required: false
+    default: "30"
+outputs:
+  uploaded_file:
+    description: "Resolved addon file path used during the upload"
+    value: ${{ steps.upload.outputs.uploaded_file }}
+  name:
+    description: "Resolved add-on name used for upload metadata"
+    value: ${{ steps.upload.outputs.name }}
+runs:
+  using: "composite"
+  steps:
+    - name: "🐍 Set up Python"
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.x"
+    - name: "🙈 Mask credentials"
+      shell: bash
+      run: |
+        echo "::add-mask::${{ inputs.anki-user }}"
+        echo "::add-mask::${{ inputs.anki-password }}"
+    - name: "📦 Install dependencies"
+      shell: bash
+      run: python -m pip install --disable-pip-version-check -r "${{ github.action_path }}/requirements.txt"
+    - name: "🚀 Update AnkiWeb add-on"
+      id: upload
+      shell: bash
+      env:
+        PYTHONPATH: ${{ github.action_path }}/src
+        ANKI_ADDON_FILE: ${{ inputs.file }}
+        ANKI_USER: ${{ inputs.anki-user }}
+        ANKI_PASSWORD: ${{ inputs.anki-password }}
+        ANKI_ADDON_ID: ${{ inputs.id }}
+        ANKI_NAME: ${{ inputs.name }}
+        ANKI_TAGS: ${{ inputs.tags }}
+        ANKI_SUPPORT_PAGE: ${{ inputs.support-page }}
+        ANKI_DESCRIPTION: ${{ inputs.description }}
+        ANKI_TIMEOUT_SECONDS: ${{ inputs.timeout-seconds }}
+      run: |
+        set -euo pipefail
+        python -m anki_addon_publish_action

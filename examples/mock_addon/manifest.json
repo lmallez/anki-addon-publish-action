@@ -1,0 +1,8 @@
+{
+  "package": "mock-upload-test-addon",
+  "name": "Mock Upload Test Add-on",
+  "author": "Example Author",
+  "version": "1.0.0",
+  "conflicts": [],
+  "mod": 1775476800
+}

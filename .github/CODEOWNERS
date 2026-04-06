@@ -1,0 +1,4 @@
+/action.yml @lmallez
+/.github/workflows/* @lmallez
+/src/anki_addon_publish_action/* @lmallez
+/SECURITY.md @lmallez
