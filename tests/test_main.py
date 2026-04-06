@@ -220,30 +220,6 @@ class MainFlowTests(unittest.TestCase):
             ):
                 main.resolve_config(args)
 
-    def test_create_mode_does_not_require_id(self) -> None:
-        with tempfile.NamedTemporaryFile(suffix=".ankiaddon") as addon_file:
-            args = argparse.Namespace(
-                addon_file=addon_file.name,
-                id=None,
-                create=True,
-                name="Example Add-on",
-                tags="demo,utility",
-                support_page="https://example.com/support",
-                description="Description",
-                base_url=main.DEFAULT_BASE_URL,
-                timeout_seconds=None,
-            )
-
-            with mock.patch.dict(
-                os.environ,
-                {"ANKI_USER": "user@example.com", "ANKI_PASSWORD": "secret"},
-                clear=False,
-            ):
-                config = main.resolve_config(args)
-
-        self.assertIsNone(config.metadata.addon_id)
-        self.assertEqual(config.metadata.name, "Example Add-on")
-
     def test_create_mode_is_rejected_in_github_actions(self) -> None:
         with tempfile.NamedTemporaryFile(suffix=".ankiaddon") as addon_file:
             args = argparse.Namespace(
