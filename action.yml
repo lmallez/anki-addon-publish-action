@@ -31,6 +31,10 @@ inputs:
     description: "Optional inline description text"
     required: false
     default: ""
+  description-file:
+    description: "Optional path to a UTF-8 text file containing the description"
+    required: false
+    default: ""
   timeout-seconds:
     description: "Request timeout in seconds"
     required: false
@@ -70,6 +74,7 @@ runs:
         ANKI_TAGS: ${{ inputs.tags }}
         ANKI_SUPPORT_PAGE: ${{ inputs.support-page }}
         ANKI_DESCRIPTION: ${{ inputs.description }}
+        ANKI_DESCRIPTION_FILE: ${{ inputs.description-file }}
         ANKI_TIMEOUT_SECONDS: ${{ inputs.timeout-seconds }}
       run: |
         set -euo pipefail

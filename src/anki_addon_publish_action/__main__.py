@@ -136,7 +136,19 @@ def preview_response(response: requests.Response, limit: int = 200) -> str:
     return f"<{len(response.content)} bytes of {content_type or 'binary data'}>"
 
 
-def load_description(description: str | None) -> str:
+def load_description(description: str | None, description_file: str | None) -> str:
+    if description and description_file:
+        raise UploadError(
+            "Description is ambiguous. Provide either ANKI_DESCRIPTION/--description "
+            "or ANKI_DESCRIPTION_FILE/--description-file."
+        )
+
+    if description_file:
+        description_path = Path(description_file).expanduser().resolve()
+        if not description_path.is_file():
+            raise UploadError(f"Description file does not exist: {description_path}")
+        return description_path.read_text(encoding="utf-8").strip()
+
     if description is not None:
         return description.strip()
     return ""
@@ -211,6 +223,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--tags", help="Comma-separated add-on tags")
     parser.add_argument("--support-page", help="Support page URL")
     parser.add_argument("--description", help="Inline add-on description text")
+    parser.add_argument("--description-file", help="Path to a UTF-8 text file for the add-on description")
     parser.add_argument("--base-url", default=DEFAULT_BASE_URL, help="AnkiWeb base URL")
     parser.add_argument("--timeout-seconds", type=int, help="HTTP request timeout in seconds")
     return parser.parse_args()
@@ -222,6 +235,7 @@ def build_metadata(
     tags: str | None,
     support_page: str | None,
     description: str | None,
+    description_file: str | None,
 ) -> tuple[UploadMetadata, str]:
     metadata = UploadMetadata(
         addon_id=addon_id,
@@ -229,7 +243,7 @@ def build_metadata(
         tags=tags or "",
         support_page=support_page or "",
     )
-    resolved_description = load_description(description)
+    resolved_description = load_description(description, description_file)
     return metadata, resolved_description
 
 
@@ -243,6 +257,7 @@ def resolve_config(args: argparse.Namespace) -> ActionConfig:
     addon_file = resolve_setting(args.addon_file, "ANKI_ADDON_FILE")
     addon_id_value = resolve_setting(None if args.id is None else str(args.id), "ANKI_ADDON_ID")
     description = resolve_setting(args.description, "ANKI_DESCRIPTION")
+    description_file = resolve_setting(args.description_file, "ANKI_DESCRIPTION_FILE")
     name = resolve_setting(args.name, "ANKI_NAME")
     tags = resolve_setting(args.tags, "ANKI_TAGS")
     support_page = resolve_setting(args.support_page, "ANKI_SUPPORT_PAGE")
@@ -270,6 +285,7 @@ def resolve_config(args: argparse.Namespace) -> ActionConfig:
         tags=tags,
         support_page=support_page,
         description=description,
+        description_file=description_file,
     )
 
     return ActionConfig(

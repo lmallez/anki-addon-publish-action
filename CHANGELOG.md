@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.1] - 2026-04-07
+
+### Added
+
+- Support loading the add-on description from `description-file` / `--description-file`
+
+### Changed
+
+- The CLI no longer prompts interactively for AnkiWeb credentials and now fails immediately when they are missing
+
 ## [0.1.0] - 2026-04-06
 
 ### Added

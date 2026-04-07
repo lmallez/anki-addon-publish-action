@@ -208,6 +208,7 @@ class MainFlowTests(unittest.TestCase):
             tags=None,
             support_page=None,
             description=None,
+            description_file=None,
             base_url=main.DEFAULT_BASE_URL,
             timeout_seconds=None,
         )
@@ -230,6 +231,7 @@ class MainFlowTests(unittest.TestCase):
                 tags=None,
                 support_page=None,
                 description=None,
+                description_file=None,
                 base_url=main.DEFAULT_BASE_URL,
                 timeout_seconds=None,
             )
@@ -256,6 +258,7 @@ class MainFlowTests(unittest.TestCase):
                 tags=None,
                 support_page=None,
                 description=None,
+                description_file=None,
                 base_url=None,
                 timeout_seconds=None,
             )
@@ -282,6 +285,7 @@ class MainFlowTests(unittest.TestCase):
                 tags=None,
                 support_page=None,
                 description=None,
+                description_file=None,
                 base_url=None,
                 timeout_seconds=None,
             )
@@ -308,6 +312,7 @@ class MainFlowTests(unittest.TestCase):
                 tags=None,
                 support_page=None,
                 description=None,
+                description_file=None,
                 base_url=None,
                 timeout_seconds=0,
             )
@@ -335,10 +340,26 @@ class MainFlowTests(unittest.TestCase):
         self.assertEqual(contents, "uploaded_file=/tmp/demo.ankiaddon\n")
 
     def test_load_description_prefers_inline_value(self) -> None:
-        self.assertEqual(main.load_description("Hello"), "Hello")
+        self.assertEqual(main.load_description("Hello", None), "Hello")
 
     def test_load_description_returns_empty_without_value(self) -> None:
-        self.assertEqual(main.load_description(None), "")
+        self.assertEqual(main.load_description(None, None), "")
+
+    def test_load_description_reads_from_file(self) -> None:
+        with tempfile.NamedTemporaryFile("w+", encoding="utf-8") as description_file:
+            description_file.write("Hello from file\n")
+            description_file.flush()
+
+            self.assertEqual(main.load_description(None, description_file.name), "Hello from file")
+
+    def test_load_description_rejects_both_inline_and_file(self) -> None:
+        with tempfile.NamedTemporaryFile("w+", encoding="utf-8") as description_file:
+            with self.assertRaisesRegex(main.UploadError, "Description is ambiguous"):
+                main.load_description("Hello", description_file.name)
+
+    def test_load_description_rejects_missing_file(self) -> None:
+        with self.assertRaisesRegex(main.UploadError, "Description file does not exist"):
+            main.load_description(None, "/tmp/does-not-exist-description.txt")
 
 
 if __name__ == "__main__":

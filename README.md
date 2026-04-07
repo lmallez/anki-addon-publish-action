@@ -55,7 +55,7 @@ jobs:
           name: Example Add-on
           support-page: https://github.com/owner/repo
           tags: example,utility
-          description: Short add-on description shown in the upload metadata.
+          description-file: addon/description.md
           timeout-seconds: 30
 ```
 
@@ -89,7 +89,7 @@ jobs:
           name: Example Add-on
           support-page: https://github.com/owner/repo
           tags: example,utility
-          description: Short add-on description shown in the upload metadata.
+          description-file: addon/description.md
 ```
 
 In the consuming repository:
@@ -110,6 +110,7 @@ In the consuming repository:
 - `tags`: optional comma-separated tags.
 - `support-page`: optional support page URL. A GitHub repository URL is a valid choice.
 - `description`: optional inline description text.
+- `description-file`: optional path to a UTF-8 text file containing the description.
 - `timeout-seconds`: defaults to `30`.
 
 ### 📤 Outputs
@@ -151,7 +152,7 @@ PYTHONPATH=src python -m anki_addon_publish_action \
   --name "Example Add-on" \
   --support-page "https://github.com/owner/repo" \
   --tags "example,utility" \
-  --description "Short add-on description shown in the upload metadata."
+  --description-file examples/description.md
 ```
 
 Create a new add-on listing from the CLI:
@@ -166,10 +167,11 @@ PYTHONPATH=src python -m anki_addon_publish_action \
   --name "Example Add-on" \
   --support-page "https://github.com/owner/repo" \
   --tags "example,utility" \
-  --description "Short add-on description shown in the upload metadata."
+  --description-file examples/description.md
 ```
 
 `--create` is CLI-only and is intentionally not exposed by the GitHub Action.
+Use either `description` or `description-file`, not both.
 
 ## 🗂️ Repository layout
 
@@ -185,7 +187,7 @@ This package does not inspect the `.ankiaddon` archive to infer metadata. The ac
 - `name` must be provided explicitly
 - `id` must be provided explicitly for updates and for GitHub Action usage
 - `--create` can be used from the CLI to create a new add-on listing without an existing id
-- `description` can be provided as an inline string
+- `description` can be provided as an inline string or loaded from `description-file`
 - `tags` and `support-page` are forwarded when provided
 
 ## 🤝 Contributing
